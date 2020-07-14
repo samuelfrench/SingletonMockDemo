@@ -7,11 +7,10 @@ public class ClassUnderTest {
     }
 
     public void methodUnderTest(){
-        if(StaticSingleton.getSingleton().getBool()){
+        if(Singleton.getSingleton().getBool()){
             dummyApiClient.doPositive();
         } else {
             dummyApiClient.doNegative();
         }
     }
-
 }
