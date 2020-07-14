@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -5,10 +6,18 @@ import static org.mockito.Mockito.*;
 
 public class ClassUnderTestTest {
 
-    DummyApiClient dummyApiClient = mock(DummyApiClient.class);
-    Singleton singletonMock = mock(Singleton.class);
+    DummyApiClient dummyApiClient;
+    Singleton singletonMock;
 
-    ClassUnderTest unit = new ClassUnderTest(dummyApiClient);
+    ClassUnderTest unit;
+
+    @BeforeEach
+    public void beforeEach(){
+        dummyApiClient = mock(DummyApiClient.class);
+        singletonMock = mock(Singleton.class);
+
+        unit = new ClassUnderTest(dummyApiClient);
+    }
 
     @Test
     public void testMethodUnderTestPositive(){
@@ -20,6 +29,7 @@ public class ClassUnderTestTest {
             unit.methodUnderTest();
 
             staticSingleton.verify(Singleton::getSingleton);
+            verify(singletonMock).getBool();
             verify(dummyApiClient).doPositive();
         }
     }
@@ -34,6 +44,7 @@ public class ClassUnderTestTest {
             unit.methodUnderTest();
 
             staticSingleton.verify(Singleton::getSingleton);
+            verify(singletonMock).getBool();
             verify(dummyApiClient).doNegative();
         }
     }
