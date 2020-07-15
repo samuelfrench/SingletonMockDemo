@@ -1,51 +1,50 @@
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Mockito.*;
+import static org.easymock.EasyMock.expect;
+import static org.powermock.api.easymock.PowerMock.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Singleton.class)
 public class ClassUnderTestTest {
 
     DummyApiClient dummyApiClient;
     Singleton singletonMock;
 
+
     ClassUnderTest unit;
 
-    @BeforeEach
+    @Before
     public void beforeEach(){
-        dummyApiClient = mock(DummyApiClient.class);
-        singletonMock = mock(Singleton.class);
+        dummyApiClient = PowerMock.createMock(DummyApiClient.class);
+        singletonMock = PowerMock.createMock(Singleton.class);
+        mockStatic(Singleton.class);
+        expect(Singleton.getSingleton()).andReturn(singletonMock);
 
         unit = new ClassUnderTest(dummyApiClient);
     }
 
     @Test
     public void testMethodUnderTestPositive(){
-        when(singletonMock.getBool()).thenReturn(true);
+        expect(singletonMock.getBool()).andReturn(true);
+        dummyApiClient.doPositive();
+        PowerMock.expectLastCall();
+        PowerMock.replayAll();
 
-        try (MockedStatic<Singleton> staticSingleton = mockStatic(Singleton.class)) {
-            staticSingleton.when(Singleton::getSingleton).thenReturn(singletonMock);
-
-            unit.methodUnderTest();
-
-            staticSingleton.verify(Singleton::getSingleton);
-            verify(singletonMock).getBool();
-            verify(dummyApiClient).doPositive();
-        }
+        unit.methodUnderTest();
     }
 
     @Test
     public void testMethodUnderTestNegative(){
-        when(singletonMock.getBool()).thenReturn(false);
+        expect(singletonMock.getBool()).andReturn(false);
+        dummyApiClient.doNegative();
+        PowerMock.expectLastCall();
+        PowerMock.replayAll();
 
-        try (MockedStatic<Singleton> staticSingleton = mockStatic(Singleton.class)) {
-            staticSingleton.when(Singleton::getSingleton).thenReturn(singletonMock);
-
-            unit.methodUnderTest();
-
-            staticSingleton.verify(Singleton::getSingleton);
-            verify(singletonMock).getBool();
-            verify(dummyApiClient).doNegative();
-        }
+        unit.methodUnderTest();
     }
 }
