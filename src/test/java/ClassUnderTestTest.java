@@ -1,51 +1,42 @@
+import mockit.Expectations;
+import mockit.Mocked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
-import static org.mockito.Mockito.*;
 
 public class ClassUnderTestTest {
-
+    @Mocked
     DummyApiClient dummyApiClient;
+
+    @Mocked
     Singleton singletonMock;
 
     ClassUnderTest unit;
 
     @BeforeEach
     public void beforeEach(){
-        dummyApiClient = mock(DummyApiClient.class);
-        singletonMock = mock(Singleton.class);
-
         unit = new ClassUnderTest(dummyApiClient);
     }
 
     @Test
     public void testMethodUnderTestPositive(){
-        when(singletonMock.getBool()).thenReturn(true);
+        new Expectations(){{
+            singletonMock.getBool(); result = true;
+            Singleton.getSingleton(); result = singletonMock;
+            dummyApiClient.doPositive();
+        }};
 
-        try (MockedStatic<Singleton> staticSingleton = mockStatic(Singleton.class)) {
-            staticSingleton.when(Singleton::getSingleton).thenReturn(singletonMock);
-
-            unit.methodUnderTest();
-
-            staticSingleton.verify(Singleton::getSingleton);
-            verify(singletonMock).getBool();
-            verify(dummyApiClient).doPositive();
-        }
+        unit.methodUnderTest();
     }
+
 
     @Test
     public void testMethodUnderTestNegative(){
-        when(singletonMock.getBool()).thenReturn(false);
+        new Expectations(){{
+            singletonMock.getBool(); result = false;
+            Singleton.getSingleton(); result = singletonMock;
+            dummyApiClient.doNegative();
+        }};
 
-        try (MockedStatic<Singleton> staticSingleton = mockStatic(Singleton.class)) {
-            staticSingleton.when(Singleton::getSingleton).thenReturn(singletonMock);
-
-            unit.methodUnderTest();
-
-            staticSingleton.verify(Singleton::getSingleton);
-            verify(singletonMock).getBool();
-            verify(dummyApiClient).doNegative();
-        }
+        unit.methodUnderTest();
     }
 }
